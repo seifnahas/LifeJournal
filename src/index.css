@@ -2,7 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+/* body {
   font-family: 'Rubik', sans-serif !important;
+} */
+
+
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.left-arrow {
+  left: 10px;
+}
+
+.right-arrow {
+  right: 10px;
 }
  

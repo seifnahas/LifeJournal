@@ -1,9 +1,8 @@
 // PhotosModal.jsx
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { Modal, Form, Input, DatePicker, Button, List, Avatar } from 'antd';
 import { useForm, Controller } from 'react-hook-form';
-import { InboxOutlined, DeleteOutlined, LeftOutlined, RightOutlined, SearchOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { InboxOutlined, DeleteOutlined, LeftOutlined, RightOutlined, SearchOutlined, PlayCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { debounce } from 'lodash';
@@ -23,14 +22,23 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
     if (initialData) {
       setValue('date', moment(initialData.date));
       setValue('description', initialData.description);
-      setSelectedSong(initialData.songId ? {
-        id: initialData.songId,
-        name: initialData.songName,
-        artists: [{ name: initialData.artistName }],
-        album: { images: [{ url: initialData.albumCover }] },
-        preview_url: initialData.previewUrl
-      } : null);
-      setFileList([{
+      if (initialData.songId) {
+        setSelectedSong({
+          id: initialData.songId,
+          name: initialData.songName,
+          artists: [{ name: initialData.artistName }],
+          album: { images: [{ url: initialData.albumCover }] },
+          preview_url: initialData.previewUrl
+        });
+      } else {
+        setSelectedSong(null);
+      }
+      setFileList(initialData.images ? initialData.images.map((image, index) => ({
+        uid: `-${index}`,
+        name: `Image ${index + 1}`,
+        status: 'done',
+        url: image.imageUrl,
+      })) : [{
         uid: '1',
         name: 'Current Photo',
         status: 'done',
@@ -45,6 +53,11 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
     }
   }, [initialData, setValue]);
 
+
+  useEffect(() => {
+    console.log('Selected Song:', selectedSong);
+  }, [selectedSong]);
+
   const onDrop = useCallback((acceptedFiles) => {
     const newFiles = acceptedFiles.map(file => ({
       uid: Date.now() + file.name,
@@ -53,7 +66,7 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
       url: URL.createObjectURL(file),
       originFileObj: file,
     }));
-    setFileList(prevList => [...prevList, ...newFiles].slice(0, 5));
+    setFileList(prevList => [...prevList, ...newFiles]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -61,6 +74,15 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
     accept: {'image/*': []},
     maxFiles: 5,
   });
+
+  useEffect(() => {
+    return () => {
+      if (audio) {
+        audio.pause();
+        setAudio(null);
+      }
+    };
+  }, [audio]);
 
   const handleRemove = (uid) => {
     const newFileList = fileList.filter(item => item.uid !== uid);
@@ -93,9 +115,23 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
   };
 
   const handleSongSelect = (song) => {
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+      setIsPlaying(false);
+    }
     setSelectedSong(song);
     setSongSearch('');
     setSongSearchResults([]);
+  };
+
+  const handleCancel = () => {
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+      setIsPlaying(false);
+    }
+    onCancel();
   };
 
   const togglePlayPreview = (previewUrl) => {
@@ -118,9 +154,13 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
     formData.append('date', values.date.toISOString());
     formData.append('description', values.description);
     
-    if (fileList.length > 0 && fileList[0].originFileObj) {
-      formData.append('photo', fileList[0].originFileObj);
-    }
+    fileList.forEach((file, index) => {
+      if (file.originFileObj) {
+        formData.append('photos', file.originFileObj);
+      } else if (file.url) {
+        formData.append(`existingPhotos[${index}]`, file.url);
+      }
+    });
     
     if (selectedSong) {
       formData.append('songId', selectedSong.id);
@@ -129,7 +169,7 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
       formData.append('albumCover', selectedSong.album.images[0].url);
       formData.append('previewUrl', selectedSong.preview_url);
     }
-
+  
     onSubmit(formData, initialData?._id);
   };
 
@@ -151,8 +191,9 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
       onCancel={onCancel}
       footer={null}
       width={800}
+      className="bg-gradient-to-r from-pink-100 to-blue-100 rounded-lg overflow-hidden"
     >
-      <Form layout="vertical" onFinish={handleSubmit(onFinish)}>
+      <Form layout="vertical" onFinish={handleSubmit(onFinish)} className="p-6 inter-font">
         <Form.Item
           label="Date"
           required
@@ -163,7 +204,12 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
             name="date"
             control={control}
             rules={{ required: true }}
-            render={({ field }) => <DatePicker {...field} style={{ width: '100%' }} />}
+            render={({ field }) => (
+              <DatePicker
+                {...field}
+                className="w-full rounded-lg border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
+              />
+            )}
           />
         </Form.Item>
 
@@ -173,10 +219,11 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
             value={songSearch}
             onChange={handleSongSearch}
             suffix={<SearchOutlined />}
+            className="rounded-lg border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
           />
         </Form.Item>
         
-        <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem' }}>
+        <div className="max-h-48 overflow-y-auto mb-4 bg-white rounded-lg shadow-inner">
           {songSearchResults.length > 0 && (
             <List
               itemLayout="horizontal"
@@ -186,16 +233,18 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
                   actions={[
                     <Button 
                       disabled={!song.preview_url}
-                      icon={<PlayCircleOutlined  />}
+                      icon={<PlayCircleOutlined />}
                       onClick={() => togglePlayPreview(song.preview_url)}
+                      className="text-pink-500 hover:text-pink-600"
                     >
                       {isPlaying && selectedSong?.id === song.id ? 'Pause' : 'Play'}
                     </Button>
                   ]}
+                  className="hover:bg-gray-50 transition-colors"
                 >
                   <List.Item.Meta
                     avatar={<Avatar src={song.album.images[0].url} />}
-                    title={<a onClick={() => handleSongSelect(song)}>{song.name}</a>}
+                    title={<a onClick={() => handleSongSelect(song)} className="text-gray-800 hover:text-pink-500">{song.name}</a>}
                     description={song.artists.map(artist => artist.name).join(', ')}
                   />
                 </List.Item>
@@ -205,72 +254,68 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
         </div>
         
         {selectedSong && (
-          <div className="selected-song">
-            <img src={selectedSong.album.images[0].url} alt="Album cover" width="50" height="50" />
-            <span>{selectedSong.name} - {selectedSong.artists[0].name}</span>
-            <Button onClick={() => setSelectedSong(null)}>Remove</Button>
+          <div className="bg-white p-4 rounded-lg flex items-center justify-between mb-4 shadow-md">
+            <div className="flex items-center">
+              <img src={selectedSong.album.images[0].url} alt="Album cover" className="w-12 h-12 object-cover rounded-full mr-4" />
+              <div>
+                <p className="font-semibold text-gray-800">{selectedSong.name}</p>
+                <p className="text-sm text-gray-600">{selectedSong.artists[0].name}</p>
+              </div>
+            </div>
+            <Button 
+              type="text" 
+              icon={<CloseCircleOutlined />} 
+              onClick={() => setSelectedSong(null)}
+              className="text-red-500 hover:text-red-700"
+            >
+              Remove
+            </Button>
           </div>
         )}
 
-        <Form.Item label="Upload Photos (Max 5)">
-          <div
-            {...getRootProps()}
-            className={`p-8 border-2 border-dashed rounded-lg text-center ${
-              isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-            }`}
-          >
+        <Form.Item label="Upload Photos">
+          <div {...getRootProps()} className="p-8 border-2 border-dashed border-gray-300 rounded-lg text-center bg-white hover:bg-gray-50 transition-colors cursor-pointer">
             <input {...getInputProps()} />
-            <p className="text-lg mb-2"><InboxOutlined /></p>
-            <p>Click or drag photos to this area to upload</p>
+            <p className="text-4xl mb-2 text-gray-400"><InboxOutlined /></p>
+            <p className="text-gray-600">Click or drag photos to this area to upload</p>
           </div>
         </Form.Item>
 
-        {fileList.length > 0 && (
-          <div className="mt-4">
-            <div className="flex justify-between items-center mb-2">
-              <Button
-                icon={<LeftOutlined />}
-                onClick={() => navigatePhoto('prev')}
-                disabled={fileList.length <= 1}
-              />
-              <span>{`${currentPhotoIndex + 1} / ${fileList.length}`}</span>
-              <Button
-                icon={<RightOutlined />}
-                onClick={() => navigatePhoto('next')}
-                disabled={fileList.length <= 1}
-              />
-            </div>
-            <div className="border rounded-lg p-4">
-              <img
-                src={fileList[currentPhotoIndex].url}
-                alt={fileList[currentPhotoIndex].name}
-                className="mb-4 max-h-64 mx-auto"
-              />
-              <Controller
-                name={`description`}
-                control={control}
-                render={({ field }) => (
-                  <Input.TextArea
-                    {...field}
-                    placeholder={`Description (optional)`}
-                    className="mb-2"
-                  />
-                )}
-              />
-              <Button
-                type="text"
-                icon={<DeleteOutlined />}
-                onClick={() => handleRemove(fileList[currentPhotoIndex].uid)}
-                className="text-red-500"
-              >
-                Remove Photo
-              </Button>
-            </div>
+        {fileList.map((file, index) => (
+          <div key={file.uid} className="mt-4 bg-white rounded-lg shadow-md p-4">
+            <img
+              src={file.url}
+              alt={file.name}
+              className="mb-4 max-h-64 mx-auto rounded-lg"
+            />
+            <Controller
+              name={`description${index}`}
+              control={control}
+              render={({ field }) => (
+                <Input.TextArea
+                  {...field}
+                  placeholder={`Description for ${file.name} (optional)`}
+                  className="mb-2 rounded-lg border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
+                />
+              )}
+            />
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => handleRemove(file.uid)}
+              className="text-red-500 hover:text-red-700"
+            >
+              Remove Photo
+            </Button>
           </div>
-        )}
+        ))}
 
-        <Form.Item className="mt-4">
-          <Button type="primary" htmlType="submit">
+        <Form.Item className="mt-6">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="bg-gradient-to-r from-pink-500 to-blue-500 border-0 text-white font-semibold py-2 px-4 rounded-lg hover:from-pink-600 hover:to-blue-600 transition-colors"
+          >
             {initialData ? 'Update Entry' : 'Add Entry'}
           </Button>
         </Form.Item>

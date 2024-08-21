@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, List, message } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Layout } from 'antd';
 import Navbar from '../Navbar';
 import PhotosModal from './PhotosModal';
 import PhotoItem from './PhotoItem';
 import axios from 'axios';
+import { setupAxiosAuth } from '../../utils/axiosConfig';
+
 
 const { Content } = Layout;
 
@@ -14,6 +15,7 @@ const Photos = () => {
   const [editingPhoto, setEditingPhoto] = useState(null);
 
   useEffect(() => {
+    setupAxiosAuth();
     fetchPhotos();
   }, []);
 
@@ -21,9 +23,8 @@ const Photos = () => {
     try {
       const response = await axios.get('http://localhost:3000/api/photos');
       setPhotos(response.data);
-    } catch (error) {
+    } catch (error) { 
       console.error('Error fetching photos:', error);
-      message.error('Failed to fetch photos');
     }
   };
 
@@ -45,19 +46,16 @@ const Photos = () => {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         setPhotos(photos.map(photo => photo._id === id ? response.data : photo));
-        message.success('Photo updated successfully');
       } else {
         response = await axios.post('http://localhost:3000/api/photos', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         setPhotos([response.data, ...photos]);
-        message.success('Photo added successfully');
       }
       setModalVisible(false);
       setEditingPhoto(null);
     } catch (error) {
       console.error('Error submitting photo:', error);
-      message.error('Failed to submit photo');
     }
   };
 
@@ -65,45 +63,43 @@ const Photos = () => {
     try {
       await axios.delete(`http://localhost:3000/api/photos/${id}`);
       setPhotos(photos.filter(photo => photo._id !== id));
-      message.success('Photo deleted successfully');
     } catch (error) {
       console.error('Error deleting photo:', error);
-      message.error('Failed to delete photo');
     }
   };
 
   return (
-    <Layout className="min-h-screen">
+    <Layout className="min-h-screen bg-gradient-to-r from-pink-100 to-blue-100 inter-font">
       <Navbar />
-      <Layout className="site-layout">
-        <Content className="m-4 p-4 bg-white rounded-lg relative">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">Photo Journal</h1>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
-              Add Entry
-            </Button>
+      <Content className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Photo Journal</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div 
+              className="bg-white p-4 rounded-lg shadow-md flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => showModal()}
+            >
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            {photos.map((photo) => (
+              <PhotoItem 
+                key={photo._id}
+                photo={photo} 
+                onEdit={() => showModal(photo)}
+                onDelete={() => handleDelete(photo._id)}
+              />
+            ))}
           </div>
-          <List
-            grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 3 }}
-            dataSource={photos}
-            renderItem={(photo) => (
-              <List.Item>
-                <PhotoItem 
-                  photo={photo} 
-                  onEdit={() => showModal(photo)}
-                  onDelete={() => handleDelete(photo._id)}
-                />
-              </List.Item>
-            )}
-          />
-          <PhotosModal
-            visible={modalVisible}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            initialData={editingPhoto}
-          />
-        </Content>
-      </Layout>
+        </div>
+        <PhotosModal
+          visible={modalVisible}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          initialData={editingPhoto}
+        />
+      </Content>
     </Layout>
   );
 };

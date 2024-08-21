@@ -1,7 +1,19 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, DatePicker, Button, Checkbox } from 'antd';
+import { Modal, Form, Input, DatePicker, Button, Checkbox, Select } from 'antd';
 import { useForm, Controller } from 'react-hook-form';
 import moment from 'moment';
+
+const { Option } = Select;
+
+const tagOptions = [
+  { value: 'Urgent', label: 'Urgent', color: 'red' },
+  { value: 'High Priority', label: 'High Priority', color: 'orange' },
+  { value: 'Work', label: 'Work', color: 'blue' },
+  { value: 'Personal', label: 'Personal', color: 'pink' },
+  { value: 'Health & Fitness', label: 'Health & Fitness', color: 'green' },
+  { value: 'Long-term', label: 'Long-term', color: 'fuchsia' },
+  { value: 'Shopping', label: 'Shopping', color: 'purple' },
+];
 
 const ToDoModal = ({ visible, onUpdate, onCreate, onCancel, initialData }) => {
   const { control, handleSubmit, reset, formState: { errors } } = useForm();
@@ -24,7 +36,6 @@ const ToDoModal = ({ visible, onUpdate, onCreate, onCancel, initialData }) => {
       onCreate(values);
     }
   };
-
   return (
     <Modal
       visible={visible}
@@ -74,6 +85,28 @@ const ToDoModal = ({ visible, onUpdate, onCreate, onCancel, initialData }) => {
               <Checkbox {...field} checked={field.value}>
                 Completed
               </Checkbox>
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Tag"
+          required
+          validateStatus={errors.tag ? 'error' : ''}
+          help={errors.tag && "Tag is required"}
+        >
+          <Controller
+            name="tag"
+            control={control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <Select {...field} placeholder="Select a tag">
+                {tagOptions.map(tag => (
+                  <Option key={tag.value} value={tag.value}>
+                    <span style={{ color: tag.color }}>{tag.label}</span>
+                  </Option>
+                ))}
+              </Select>
             )}
           />
         </Form.Item>

@@ -8,8 +8,6 @@ axios.defaults.withCredentials = true;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <div style={{ fontFamily: "Rubik, sans-serif" }}>
       <App />
-    </div>
   </React.StrictMode>,
 );

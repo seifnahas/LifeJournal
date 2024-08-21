@@ -1,48 +1,55 @@
 import React from 'react';
-import { Card, Button, Progress, Checkbox, List } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Progress } from 'antd';
 
-const GoalsItem = ({ id, title, description, dueDate, tasks, onDelete, onEdit, onUpdateTask }) => {
-  const completedTasks = tasks.filter(task => task.completed).length;
-  const progress = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
+const GoalItem = ({ goal, onDelete, onEdit, onUpdateTask }) => {
+  const completedTasks = goal.tasks.filter(task => task.completed).length;
+  const progress = goal.tasks.length > 0 ? (completedTasks / goal.tasks.length) * 100 : 0;
 
   const handleTaskToggle = (taskIndex, checked) => {
-    const updatedTasks = [...tasks];
+    const updatedTasks = [...goal.tasks];
     updatedTasks[taskIndex].completed = checked;
-    onUpdateTask(id, updatedTasks);
+    onUpdateTask(goal._id, updatedTasks);
   };
 
   return (
-    <Card
-      className="mb-4 shadow-md"
-      title={<span className="text-lg font-bold">{title}</span>}
-      extra={
-        <div>
-          <Button icon={<EditOutlined />} onClick={() => onEdit(id)} className="mr-2" />
-          <Button icon={<DeleteOutlined />} danger onClick={() => onDelete(id)} />
+    <div className="bg-white rounded-lg shadow-md overflow-hidden inter-font flex flex-col h-full">
+      <div className="p-4 flex-grow">
+        <div className="mb-4 flex justify-center">
+          <Progress
+            type="circle"
+            percent={Math.round(progress)}
+            width={80}
+            strokeColor={{
+              '0%': '#ffecd2',
+              '100%': '#fcb69f',
+            }}
+          />
         </div>
-      }
-    >
-      <p className="mb-2">{description}</p>
-      <p className="mb-2">Due: {new Date(dueDate).toLocaleDateString()}</p>
-      <Progress percent={Math.round(progress)} status="active" className="mb-4" />
-      <List
-        size="small"
-        header={<div className="font-bold">Tasks</div>}
-        dataSource={tasks}
-        renderItem={(task, index) => (
-          <List.Item>
-            <Checkbox
-              checked={task.completed}
-              onChange={(e) => handleTaskToggle(index, e.target.checked)}
-            >
-              {task.description}
-            </Checkbox>
-          </List.Item>
-        )}
-      />
-    </Card>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">{goal.title}</h3>
+        <p className="text-sm text-gray-600 mb-2">{goal.description}</p>
+        <p className="text-xs text-gray-500 mb-4">Due: {new Date(goal.dueDate).toLocaleDateString()}</p>
+        <div className="space-y-2">
+          {goal.tasks.map((task, index) => (
+            <div key={index} className="flex items-center">
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={(e) => handleTaskToggle(index, e.target.checked)}
+                className="mr-2"
+              />
+              <span className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                {task.description}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex border-t border-gray-200 mt-auto">
+        <button onClick={() => onEdit(goal._id)} className="flex-1 py-2 text-sm text-center text-gray-500 hover:bg-gray-50">Edit</button>
+        <button onClick={() => onDelete(goal._id)} className="flex-1 py-2 text-sm text-center text-gray-500 hover:bg-gray-50 border-l border-gray-200">Delete</button>
+      </div>
+    </div>
   );
 };
 
-export default GoalsItem;
+export default GoalItem;

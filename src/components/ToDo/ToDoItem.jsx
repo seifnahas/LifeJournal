@@ -1,10 +1,18 @@
 import React from 'react';
-import { Checkbox, Typography, Button } from 'antd';
+import { Checkbox, Tag } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
-const { Text } = Typography;
+const tagColors = {
+  'Urgent': 'red',
+  'High Priority': 'orange',
+  'Work': 'blue',
+  'Personal': 'pink',
+  'Health & Fitness': 'green',
+  'Long-term': 'magenta',
+  'Shopping': 'purple',
+};
 
-const ToDoItem = ({ id, title, dueDate, completed, onDelete, onEdit, onToggleComplete }) => {
+const ToDoItem = ({ id, title, dueDate, completed, tag, onDelete, onEdit, onToggleComplete }) => {
   const handleDelete = () => {
     onDelete(id);
   };
@@ -18,34 +26,30 @@ const ToDoItem = ({ id, title, dueDate, completed, onDelete, onEdit, onToggleCom
   };
 
   return (
-    <div className="flex items-center justify-between p-2 mb-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-      <div className="flex items-center">
-        <Checkbox checked={completed} onChange={handleToggleComplete} className="mr-2" />
-        <Text 
-          strong 
-          className={`text-lg ${completed ? 'line-through text-gray-400' : ''}`}
-        >
+    <div className="bg-white rounded-lg shadow-md overflow-hidden inter-font">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <Checkbox checked={completed} onChange={handleToggleComplete} className="mr-2" />
+          <Tag color={tagColors[tag]} className="ml-auto">
+            {tag}
+          </Tag>
+        </div>
+        <h3 className={`text-lg font-medium mb-2 ${completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
           {title}
-        </Text>
-      </div>
-      <div className="flex items-center">
-        <Text type="secondary" className="mr-4">
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
           Due: {new Date(dueDate).toLocaleDateString()}
-        </Text>
-        <Button 
-          type="text" 
-          icon={<EditOutlined />} 
-          onClick={handleEdit}
-          aria-label="Edit todo"
-          className="mr-2"
-        />
-        <Button 
-          type="text" 
-          danger 
-          icon={<DeleteOutlined />} 
-          onClick={handleDelete}
-          aria-label="Delete todo"
-        />
+        </p>
+      </div>
+      <div className="flex border-t border-gray-200">
+        <button onClick={handleEdit} className="flex-1 py-2 text-sm text-center text-gray-500 hover:bg-gray-50">
+          <EditOutlined className="mr-1" />
+          Edit
+        </button>
+        <button onClick={handleDelete} className="flex-1 py-2 text-sm text-center text-gray-500 hover:bg-gray-50 border-l border-gray-200">
+          <DeleteOutlined className="mr-1" />
+          Delete
+        </button>
       </div>
     </div>
   );
