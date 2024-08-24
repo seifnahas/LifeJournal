@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, DatePicker, Button } from 'antd';
+import moment from 'moment';
+
 
 const GoalsModal = ({ visible, onCreate, onUpdate, onCancel, initialData }) => {
   const [form] = Form.useForm();
@@ -9,7 +11,7 @@ const GoalsModal = ({ visible, onCreate, onUpdate, onCancel, initialData }) => {
     if (initialData) {
       form.setFieldsValue({
         ...initialData,
-        dueDate: initialData.dueDate ? new Date(initialData.dueDate) : null,
+        dueDate: initialData.dueDate ? moment(initialData.dueDate) : null,  // Convert to moment object
       });
       setTasks(initialData.tasks || []);
     } else {
@@ -53,48 +55,37 @@ const GoalsModal = ({ visible, onCreate, onUpdate, onCancel, initialData }) => {
 
   return (
     <Modal
-      visible={visible}
-      title={initialData ? "Edit Goal" : "Create New Goal"}
-      okText={initialData ? "Update" : "Create"}
-      cancelText="Cancel"
-      onCancel={onCancel}
-      onOk={handleOk}
-    >
-      <Form form={form} layout="vertical" name="goal_form">
-        <Form.Item
-          name="title"
-          label="Goal Title"
-          rules={[{ required: true, message: 'Please input the goal title!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="description"
-          label="Specific Description"
-          rules={[{ required: true, message: 'Please input a specific description!' }]}
-        >
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item
-          name="measurementCriteria"
-          label="Measurement Criteria"
-          rules={[{ required: true, message: 'Please input measurement criteria!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="relevance"
-          label="Relevance"
-          rules={[{ required: true, message: 'Please explain the relevance!' }]}
-        >
-          <Input.TextArea />
-        </Form.Item>
+    visible={visible}
+    title={initialData ? "Edit Goal" : "Create New Goal"}
+    okText={initialData ? "Update" : "Create"}
+    cancelText="Cancel"
+    onCancel={onCancel}
+    onOk={handleOk}
+    className="bg-gradient-to-r from-pink-100 to-blue-100 rounded-3xl overflow-hidden"
+    okButtonProps={{className:"bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300"}}
+    cancelButtonProps={{className:"bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300"}}
+  >
+    <Form form={form} layout="vertical" name="goal_form" className="p-8 inter-font">
+      <Form.Item
+        name="title"
+        label="Goal Title"
+        rules={[{ required: true, message: 'Please input the goal title!' }]}
+      >
+        <Input className="rounded-full border-2 border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 py-2 px-4" />
+      </Form.Item>
+      <Form.Item
+        name="description"
+        label="Specific Description"
+        rules={[{ required: true, message: 'Please input a specific description!' }]}
+      >
+        <Input.TextArea className="rounded-xl border-2 border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 py-2 px-4" />
+      </Form.Item>
         <Form.Item
           name="dueDate"
           label="Due Date"
           rules={[{ required: true, message: 'Please select the due date!' }]}
         >
-          <DatePicker />
+          <DatePicker className="w-full rounded-full border-2 border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 py-2 px-4" />
         </Form.Item>
         <div className="mb-4">
           <h4 className="mb-2">Tasks</h4>
@@ -104,12 +95,12 @@ const GoalsModal = ({ visible, onCreate, onUpdate, onCancel, initialData }) => {
                 value={task.description}
                 onChange={(e) => updateTask(index, e.target.value)}
                 placeholder="Task description"
-                className="mr-2"
+                className="mr-2 rounded-full border-2 border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 py-2 px-4"
               />
-              <Button onClick={() => removeTask(index)} danger>Remove</Button>
+              <Button onClick={() => removeTask(index)} danger className="rounded-full">Remove</Button>
             </div>
           ))}
-          <Button onClick={addTask} type="dashed" block>
+          <Button onClick={addTask} type="dashed" block className="rounded-full">
             Add Task
           </Button>
         </div>

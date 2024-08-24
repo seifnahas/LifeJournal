@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from 'antd';
+import { Layout, Spin, message } from 'antd';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PlusOutlined } from '@ant-design/icons';
 import Navbar from '../Navbar';
 import GoalsModal from './GoalsModal';
@@ -9,24 +10,68 @@ import { setupAxiosAuth } from '../../utils/axiosConfig';
 
 const { Content } = Layout;
 
+const fetchGoals = async () => {
+  const { data } = await axios.get('http://localhost:3000/api/goals', { withCredentials: true });
+  return data;
+};
+
 const Goals = () => {
-  const [goals, setGoals] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    setupAxiosAuth()
-    fetchGoals();
+    setupAxiosAuth();
   }, []);
 
-  const fetchGoals = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/api/goals', { withCredentials: true });
-      setGoals(response.data);
-    } catch (error) {
-      console.error('Error fetching goals:', error);
-    }
-  };
+  const { data: goals = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['goals'],
+    queryFn: fetchGoals,
+  });
+
+  const createGoalMutation = useMutation({
+    mutationFn: (newGoal) => axios.post('http://localhost:3000/api/goals', newGoal),
+    onSuccess: () => {
+      queryClient.invalidateQueries('goals');
+      setModalVisible(false);
+    },
+    onError: (error) => {
+      console.error('Error adding goal:', error);
+      message.error('Failed to add goal. Please try again.');
+    },
+  });
+
+  const updateGoalMutation = useMutation({
+    mutationFn: ({ id, values }) => axios.put(`http://localhost:3000/api/goals/${id}`, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries('goals');
+      setModalVisible(false);
+      setEditingGoal(null);
+    },
+    onError: (error) => {
+      console.error('Error updating goal:', error);
+      message.error('Failed to update goal. Please try again.');
+    },
+  });
+
+  const deleteGoalMutation = useMutation({
+    mutationFn: (id) => axios.delete(`http://localhost:3000/api/goals/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries('goals');
+    },
+    onError: (error) => {
+      console.error('Error deleting goal:', error);
+      message.error('Failed to delete goal. Please try again.');
+    },
+  });
+
+  if (isLoading) {
+    return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} />;
+  }
+
+  if (error) {
+    message.error('Failed to fetch goals. Please try again later.');
+  }
 
   const handleAddGoal = () => {
     setEditingGoal(null);
@@ -34,33 +79,15 @@ const Goals = () => {
   };
 
   const handleCreate = async (values) => {
-    try {
-      const response = await axios.post('http://localhost:3000/api/goals', values);
-      setGoals([...goals, response.data]);
-      setModalVisible(false);
-    } catch (error) {
-      console.error('Error adding goal:', error);
-    }
+    createGoalMutation.mutate(values);
   };
 
   const handleUpdate = async (id, values) => {
-    try {
-      const response = await axios.put(`http://localhost:3000/api/goals/${id}`, values);
-      setGoals(goals.map(goal => goal._id === id ? response.data : goal));
-      setModalVisible(false);
-      setEditingGoal(null);
-    } catch (error) {
-      console.error('Error updating goal:', error);
-    }
+    updateGoalMutation.mutate({ id, values });
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/api/goals/${id}`);
-      setGoals(goals.filter(goal => goal._id !== id));
-    } catch (error) {
-      console.error('Error deleting goal:', error);
-    }
+    deleteGoalMutation.mutate(id);
   };
 
   const handleEdit = (id) => {
@@ -70,22 +97,20 @@ const Goals = () => {
   };
 
   const handleUpdateTask = async (id, updatedTasks) => {
-    try {
-      const goalToUpdate = goals.find(goal => goal._id === id);
-      const response = await axios.put(`http://localhost:3000/api/goals/${id}`, 
-        { ...goalToUpdate, tasks: updatedTasks }, 
-        { withCredentials: true }
-      );
-      setGoals(goals.map(goal => goal._id === id ? response.data : goal));
-    } catch (error) {
-      console.error('Error updating goal tasks:', error);
-    }
+    const goalToUpdate = goals.find(goal => goal._id === id);
+    updateGoalMutation.mutate({ id, values: { ...goalToUpdate, tasks: updatedTasks } });
+  };
+
+  const handleToggleComplete = async (id, completed) => {
+    const goalToUpdate = goals.find(goal => goal._id === id);
+    updateGoalMutation.mutate({ id, values: { ...goalToUpdate, completed } });
   };
 
   const handleCancel = () => {
     setModalVisible(false);
     setEditingGoal(null);
   };
+
 
   return (
     <Layout className="min-h-screen bg-gradient-to-r from-pink-100 to-blue-100 inter-font">
@@ -107,6 +132,7 @@ const Goals = () => {
                 onDelete={handleDelete}
                 onEdit={handleEdit}
                 onUpdateTask={handleUpdateTask}
+                onToggleComplete={handleToggleComplete}
               />
             ))}
           </div>

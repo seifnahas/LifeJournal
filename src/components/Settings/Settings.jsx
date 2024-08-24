@@ -4,12 +4,16 @@ import { UserOutlined } from '@ant-design/icons';
 import Navbar from '../Navbar';
 import axios from 'axios';
 import { setupAxiosAuth } from '../../utils/axiosConfig';
+import { useNavigate} from 'react-router-dom';
+
 
 const { Content } = Layout;
 
 const Settings = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     setupAxiosAuth();
@@ -24,6 +28,11 @@ const Settings = () => {
       console.error('Error fetching user data:', error);
       message.error('Failed to fetch user data');
     }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('jwtToken');
+    navigate('/signin')
   };
 
   const onFinishName = async (values) => {
@@ -91,15 +100,15 @@ const Settings = () => {
   };
 
   return (
-    <Layout className="min-h-screen bg-gradient-to-r from-pink-100 to-blue-100">
+    <Layout className="min-h-screen bg-gradient-to-r from-pink-100 to-blue-100 inter-font">
       <Navbar />
-      <Layout className="site-layout">
-        <Content className="m-4 p-4">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Account Settings</h1>
+      <Content className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Account Settings</h1>
           {user && (
             <Row gutter={[16, 16]}>
               <Col xs={24} md={12}>
-                <Card className="shadow-md rounded-lg">
+                <Card className="rounded-lg shadow-md">
                   <div className="flex items-center mb-4">
                     <Avatar size={64} icon={<UserOutlined />} src={user.profilePicture} />
                     <div className="ml-4">
@@ -114,14 +123,14 @@ const Settings = () => {
                     className="hidden"
                     id="profile-pic-upload"
                   />
-                  <label htmlFor="profile-pic-upload" className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-600 transition-colors">
+                  <label htmlFor="profile-pic-upload" className="bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg cursor-pointer transition duration-300">
                     Upload new picture
                   </label>
                 </Card>
               </Col>
-              
+  
               <Col xs={24} md={12}>
-                <Card className="shadow-md rounded-lg">
+                <Card className="rounded-lg shadow-md">
                   <h2 className="text-xl font-semibold mb-4">Name</h2>
                   <Form
                     initialValues={{ name: user.name }}
@@ -135,16 +144,16 @@ const Settings = () => {
                       <Input className="rounded-md" />
                     </Form.Item>
                     <Form.Item>
-                      <Button type="primary" htmlType="submit" loading={loading} className="bg-blue-500 hover:bg-blue-600">
+                      <Button type="primary" htmlType="submit" loading={loading} className="bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
                         Save Name
                       </Button>
                     </Form.Item>
                   </Form>
                 </Card>
               </Col>
-              
+  
               <Col xs={24} md={12}>
-                <Card className="shadow-md rounded-lg">
+                <Card className="rounded-lg shadow-md">
                   <h2 className="text-xl font-semibold mb-4">Email</h2>
                   <Form
                     initialValues={{ email: user.email }}
@@ -161,16 +170,16 @@ const Settings = () => {
                       <Input className="rounded-md" />
                     </Form.Item>
                     <Form.Item>
-                      <Button type="primary" htmlType="submit" loading={loading} className="bg-blue-500 hover:bg-blue-600">
+                      <Button type="primary" htmlType="submit" loading={loading} className="bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
                         Save Email
                       </Button>
                     </Form.Item>
                   </Form>
                 </Card>
               </Col>
-              
+  
               <Col xs={24} md={12}>
-                <Card className="shadow-md rounded-lg">
+                <Card className="rounded-lg shadow-md">
                   <h2 className="text-xl font-semibold mb-4">Password</h2>
                   <Form onFinish={onFinishPassword} layout="vertical">
                     <Form.Item
@@ -188,19 +197,26 @@ const Settings = () => {
                       <Input.Password className="rounded-md" />
                     </Form.Item>
                     <Form.Item>
-                      <Button type="primary" htmlType="submit" loading={loading} className="bg-blue-500 hover:bg-blue-600">
+                      <Button type="primary" htmlType="submit" loading={loading} className="bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
                         Change Password
                       </Button>
                     </Form.Item>
                   </Form>
                 </Card>
               </Col>
+  
+              <Col xs={24} md={24}>
+                <Button onClick={handleSignOut} className="w-full bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                  Sign Out
+                </Button>
+              </Col>
             </Row>
           )}
-        </Content>
-      </Layout>
+        </div>
+      </Content>
     </Layout>
   );
+  
 };
 
 export default Settings;

@@ -1,39 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, message } from 'antd';
+import { Layout, message, Spin } from 'antd';
 import Navbar from '../Navbar';
 import MoodModal from './MoodModal';
 import CalendarView from './CalendarView';
 import { setupAxiosAuth } from '../../utils/axiosConfig';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import MoodItem from './MoodItem';
 
 const { Content } = Layout;
 
+const fetchMoods = async () => {
+  const { data } = await axios.get('http://localhost:3000/api/moods');
+  return data;
+};
+
 const Mood = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [moods, setMoods] = useState([]);
+  // const [moods, setMoods] = useState([]);
   const [editingMood, setEditingMood] = useState(null);
   const [view, setView] = useState('list');
 
   useEffect(() => {
     setupAxiosAuth();
-    fetchMoods();
+
   }, []);
 
-  const fetchMoods = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/api/moods');
-      setMoods(response.data);
-    } catch (error) {
-      console.error('Error fetching moods:', error);
-      if (error.response && error.response.status === 401) {
-        message.error('Session expired. Please log in again.');
-        // navigate('/signin');
-      } else {
-        message.error('Failed to fetch moods');
-      }
-    }
-  };
+  // const fetchMoods = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:3000/api/moods');
+  //     setMoods(response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching moods:', error);
+  //     if (error.response && error.response.status === 401) {
+  //       message.error('Session expired. Please log in again.');
+  //       // navigate('/signin');
+  //     } else {
+  //       message.error('Failed to fetch moods');
+  //     }
+  //   }
+  // };
+
+
+  const { data: moods = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['moods'],
+    queryFn: fetchMoods,
+  });
+
+  if (isLoading) {
+    return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} />;
+  }
+
+  if (error) {
+    message.error('Failed to fetch moods. Please try again later.');
+  }
 
   const handleAddMood = () => {
     setEditingMood(null);

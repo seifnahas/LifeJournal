@@ -1,32 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from 'antd';
+import { Layout, Spin, message } from 'antd';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Navbar from '../Navbar';
 import PhotosModal from './PhotosModal';
 import PhotoItem from './PhotoItem';
 import axios from 'axios';
 import { setupAxiosAuth } from '../../utils/axiosConfig';
 
-
 const { Content } = Layout;
+
+const fetchPhotos = async () => {
+  const { data } = await axios.get('http://localhost:3000/api/photos');
+  return data;
+};
 
 const Photos = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [photos, setPhotos] = useState([]);
   const [editingPhoto, setEditingPhoto] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setupAxiosAuth();
-    fetchPhotos();
   }, []);
 
-  const fetchPhotos = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/api/photos');
-      setPhotos(response.data);
-    } catch (error) { 
-      console.error('Error fetching photos:', error);
-    }
-  };
+  const { data: photos = [], isLoading, error } = useQuery({
+    queryKey: ['photos'],
+    queryFn: fetchPhotos,
+  });
+
+  const createPhotoMutation = useMutation({
+    mutationFn: (newPhoto) => axios.post('http://localhost:3000/api/photos', newPhoto, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries('photos');
+      setModalVisible(false);
+    },
+    onError: (error) => {
+      console.error('Error adding photo:', error);
+      message.error('Failed to add photo. Please try again.');
+    },
+  });
+
+  const updatePhotoMutation = useMutation({
+    mutationFn: ({ id, formData }) => axios.put(`http://localhost:3000/api/photos/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(['photos'], (oldData) => {
+        return oldData.map((photo) => 
+          photo._id === variables.id ? { ...photo, ...data.data } : photo
+        );
+      });
+      setModalVisible(false);
+      setEditingPhoto(null);
+    },
+    onError: (error) => {
+      console.error('Error updating photo:', error);
+      message.error('Failed to update photo. Please try again.');
+    },
+  });
+
+  const deletePhotoMutation = useMutation({
+    mutationFn: (id) => axios.delete(`http://localhost:3000/api/photos/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries('photos');
+    },
+    onError: (error) => {
+      console.error('Error deleting photo:', error);
+      message.error('Failed to delete photo. Please try again.');
+    },
+  });
+
+  if (isLoading) {
+    return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} />;
+  }
+
+  if (error) {
+    message.error('Failed to fetch photos. Please try again later.');
+  }
 
   const showModal = (photo = null) => {
     setEditingPhoto(photo);
@@ -38,34 +90,16 @@ const Photos = () => {
     setEditingPhoto(null);
   };
 
-  const handleSubmit = async (formData, id = null) => {
-    try {
-      let response;
-      if (id) {
-        response = await axios.put(`http://localhost:3000/api/photos/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        setPhotos(photos.map(photo => photo._id === id ? response.data : photo));
-      } else {
-        response = await axios.post('http://localhost:3000/api/photos', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        setPhotos([response.data, ...photos]);
-      }
-      setModalVisible(false);
-      setEditingPhoto(null);
-    } catch (error) {
-      console.error('Error submitting photo:', error);
+  const handleSubmit = (formData, id = null) => {
+    if (id) {
+      updatePhotoMutation.mutate({ id, formData });
+    } else {
+      createPhotoMutation.mutate(formData);
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/api/photos/${id}`);
-      setPhotos(photos.filter(photo => photo._id !== id));
-    } catch (error) {
-      console.error('Error deleting photo:', error);
-    }
+  const handleDelete = (id) => {
+    deletePhotoMutation.mutate(id);
   };
 
   return (

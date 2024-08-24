@@ -111,7 +111,7 @@ const ToDoModal = ({ visible, onUpdate, onCreate, onCancel, initialData }) => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" className="bg-gradient-to-r from-pink-400 to-blue-400 hover:from-pink-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
             {initialData ? "Update ToDo" : "Add ToDo"}
           </Button>
         </Form.Item>

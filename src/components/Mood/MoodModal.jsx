@@ -33,14 +33,20 @@ const MoodModal = ({ visible, onCreate, onCancel, initialValues }) => {
       title={initialValues ? "Edit Mood" : "Log Mood"}
       onCancel={onCancel}
       footer={null}
+      className="bg-gradient-to-r from-pink-100 to-blue-100 rounded-3xl overflow-hidden"
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <div className="bg-gradient-to-r from-pink-100 to-blue-100 p-8 rounded-3xl">
+
+      <Form form={form} layout="vertical" onFinish={onFinish} className="p-8 inter-font">
         <Form.Item
           name="date"
           label="Date"
           rules={[{ required: true, message: 'Date is required' }]}
         >
-          <DatePicker style={{ width: '100%' }} />
+            <DatePicker 
+              style={{ width: '100%' }} 
+              className="rounded-full border-2 border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 py-2 px-4"
+            />
         </Form.Item>
         <Form.Item
           name="mood"
@@ -52,6 +58,7 @@ const MoodModal = ({ visible, onCreate, onCancel, initialValues }) => {
               const emojis = ['😢', '😟', '😐', '😊', '😁'];
               return emojis[index];
             }}
+            className="text-2xl"
           />
         </Form.Item>
         <Form.Item
@@ -65,17 +72,23 @@ const MoodModal = ({ visible, onCreate, onCancel, initialValues }) => {
             max={5}
             marks={{ 1: '1', 2: '2', 3: '3', 4: '4', 5: '5' }}
             step={1}
+            className="mb-8"
           />
         </Form.Item>
         <Form.Item name="notes" label="Notes">
-          <Input.TextArea rows={4} />
+          <Input.TextArea rows={4} className="rounded-xl border-2 border-gray-300 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 py-2 px-4" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button 
+            type="primary" 
+            htmlType="submit"
+            className="bg-gradient-to-r from-pink-500 to-blue-500 border-0 text-white font-semibold py-3 px-6 rounded-full hover:from-pink-600 hover:to-blue-600 transition-colors"
+          >
             {initialValues ? "Update Mood" : "Log Mood"}
           </Button>
         </Form.Item>
       </Form>
+      </div>
     </Modal>
   );
 };

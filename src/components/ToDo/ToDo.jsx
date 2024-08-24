@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Button, message, Select, Radio } from 'antd';
+import { Layout, Button, message, Select, Radio, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../Navbar';
@@ -106,8 +106,14 @@ const ToDo = () => {
 
   const filteredTodos = selectedTag === 'All' ? todos : todos.filter(todo => todo.tag === selectedTag);
 
-  if (isLoading) return <p>Loading todos...</p>;
-  if (error) return <p>Error fetching todos</p>;
+  if (isLoading) {
+    return (
+      <Layout style={{ height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
+        <Spin size="large" tip="Loading your tasks..." />
+      </Layout>
+    );
+  }
+
 
 
   const renderContent = () => {

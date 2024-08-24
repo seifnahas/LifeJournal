@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu } from 'antd';
 import {
   UserOutlined,
@@ -11,8 +11,18 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DefaultPfp from '../assets/DefaultPfp.png'; 
+import {setupAxiosAuth} from '../utils/axiosConfig'
+import axios from 'axios'
+import { useQuery } from '@tanstack/react-query';
+
 
 const { Sider } = Layout;
+
+const fetchUserData = async () => {
+  const { data } = await axios.get('http://localhost:3000/api/user');
+  return data;
+};
+
 
 const Navbar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -22,6 +32,21 @@ const Navbar = () => {
   const onCollapse = (collapsed) => {
     setCollapsed(collapsed);
   };
+
+  useEffect(() => {
+    setupAxiosAuth(); // Set up the Axios auth globally
+  }, []);
+
+  const { data: user, isLoading, error } = useQuery({
+    queryKey: ['user'],
+    queryFn: fetchUserData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+  });
+
+
+
 
   const menuItems = [
     { key: "/dashboard", icon: <HomeOutlined />, label: "Home", onClick: () => navigate('/dashboard') },
@@ -44,7 +69,7 @@ const Navbar = () => {
     >
       <div className="h-16 m-4 mb-8 flex justify-center items-center">
         <img 
-          src={DefaultPfp} 
+          src={user?.profilePicture || DefaultPfp} 
           alt="Profile" 
           className="w-12 h-12 rounded-full cursor-pointer border-2 border-gray-700" 
         />

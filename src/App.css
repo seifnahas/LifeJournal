@@ -34,3 +34,104 @@
 .custom-modal .ant-modal-body {
   padding: 0;
 }
+
+
+.photos-modal .ant-modal-content,
+.mood-modal .ant-modal-content {
+  background: red;
+}
+
+.photos-modal .ant-modal-header,
+.mood-modal .ant-modal-header {
+  background: transparent;
+  border-bottom: none;
+}
+
+
+.embla {
+  position: relative;
+  padding: 20px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.embla__viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.embla__container {
+  display: flex;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -khtml-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.embla__slide {
+  position: relative;
+  min-width: 100%;
+}
+
+.embla__slide__inner {
+  position: relative;
+  overflow: hidden;
+  height: 300px;
+}
+
+.embla__slide__img {
+  position: absolute;
+  display: block;
+  top: 50%;
+  left: 50%;
+  width: auto;
+  min-height: 100%;
+  min-width: 100%;
+  max-width: none;
+  transform: translate(-50%, -50%);
+}
+
+.embla__prev,
+.embla__next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.embla__prev:hover,
+.embla__next:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.embla__prev {
+  left: 10px;
+}
+
+.embla__next {
+  right: 10px;
+}
+
+.life-button {
+  background-image: linear-gradient(to right, pink-400, blue-400);
+  color: white;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.life-button:hover {
+  background-image: linear-gradient(to right, pink-500, blue-500);
+}
