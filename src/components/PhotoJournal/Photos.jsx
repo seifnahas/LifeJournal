@@ -10,7 +10,7 @@ import { setupAxiosAuth } from '../../utils/axiosConfig';
 const { Content } = Layout;
 
 const fetchPhotos = async () => {
-  const { data } = await axios.get('http://localhost:3000/api/photos');
+  const { data } = await axios.get('https://lifejournalbackend.onrender.com/api/photos');
   return data;
 };
 
@@ -29,7 +29,7 @@ const Photos = () => {
   });
 
   const createPhotoMutation = useMutation({
-    mutationFn: (newPhoto) => axios.post('http://localhost:3000/api/photos', newPhoto, {
+    mutationFn: (newPhoto) => axios.post('https://lifejournalbackend.onrender.com/api/photos', newPhoto, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
     onSuccess: () => {
@@ -43,7 +43,7 @@ const Photos = () => {
   });
 
   const updatePhotoMutation = useMutation({
-    mutationFn: ({ id, formData }) => axios.put(`http://localhost:3000/api/photos/${id}`, formData, {
+    mutationFn: ({ id, formData }) => axios.put(`https://lifejournalbackend.onrender.com/api/photos/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
     onSuccess: (data, variables) => {
@@ -62,7 +62,7 @@ const Photos = () => {
   });
 
   const deletePhotoMutation = useMutation({
-    mutationFn: (id) => axios.delete(`http://localhost:3000/api/photos/${id}`),
+    mutationFn: (id) => axios.delete(`https://lifejournalbackend.onrender.com/api/photos/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries('photos');
     },

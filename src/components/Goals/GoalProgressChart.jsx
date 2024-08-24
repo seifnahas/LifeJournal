@@ -8,7 +8,7 @@ const GoalProgressChart = () => {
   useEffect(() => {
     const fetchGoalData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/goals', { withCredentials: true });
+        const response = await axios.get('https://lifejournalbackend.onrender.com/api/goals', { withCredentials: true });
         const goals = response.data;
         const completedGoals = goals.filter(goal => 
           goal.tasks.length > 0 && goal.tasks.every(task => task.completed)

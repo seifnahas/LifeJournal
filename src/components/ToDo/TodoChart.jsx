@@ -6,7 +6,7 @@ import moment from 'moment';
 import { setupAxiosAuth } from '../../utils/axiosConfig';
 
 const fetchTodos = async () => {
-  const { data } = await axios.get('http://localhost:3000/api/todos');
+  const { data } = await axios.get('https://lifejournalbackend.onrender.com/api/todos');
   return data;
 };
 

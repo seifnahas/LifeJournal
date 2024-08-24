@@ -11,7 +11,7 @@ import { setupAxiosAuth } from '../../utils/axiosConfig';
 const { Content } = Layout;
 
 const fetchGoals = async () => {
-  const { data } = await axios.get('http://localhost:3000/api/goals', { withCredentials: true });
+  const { data } = await axios.get('https://lifejournalbackend.onrender.com/api/goals', { withCredentials: true });
   return data;
 };
 
@@ -30,7 +30,7 @@ const Goals = () => {
   });
 
   const createGoalMutation = useMutation({
-    mutationFn: (newGoal) => axios.post('http://localhost:3000/api/goals', newGoal),
+    mutationFn: (newGoal) => axios.post('https://lifejournalbackend.onrender.com/api/goals', newGoal),
     onSuccess: () => {
       queryClient.invalidateQueries('goals');
       setModalVisible(false);
@@ -42,7 +42,7 @@ const Goals = () => {
   });
 
   const updateGoalMutation = useMutation({
-    mutationFn: ({ id, values }) => axios.put(`http://localhost:3000/api/goals/${id}`, values),
+    mutationFn: ({ id, values }) => axios.put(`https://lifejournalbackend.onrender.com/api/goals/${id}`, values),
     onSuccess: () => {
       queryClient.invalidateQueries('goals');
       setModalVisible(false);
@@ -55,7 +55,7 @@ const Goals = () => {
   });
 
   const deleteGoalMutation = useMutation({
-    mutationFn: (id) => axios.delete(`http://localhost:3000/api/goals/${id}`),
+    mutationFn: (id) => axios.delete(`https://lifejournalbackend.onrender.com/api/goals/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries('goals');
     },

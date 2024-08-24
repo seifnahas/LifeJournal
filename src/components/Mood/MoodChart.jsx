@@ -9,7 +9,7 @@ const MoodChart = () => {
   useEffect(() => {
     const fetchMoodData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/moods');
+        const response = await axios.get('https://lifejournalbackend.onrender.com/api/moods');
         const formattedData = response.data.map(entry => ({
           date: new Date(entry.date).toLocaleDateString(),
           mood: ['Very Sad', 'Sad', 'Neutral', 'Happy', 'Very Happy'].indexOf(entry.mood) + 1,

@@ -22,7 +22,7 @@ const Settings = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/user');
+      const response = await axios.get('https://lifejournalbackend.onrender.com/api/user');
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -38,7 +38,7 @@ const Settings = () => {
   const onFinishName = async (values) => {
     setLoading(true);
     try {
-      const response = await axios.put('http://localhost:3000/api/user/name', {
+      const response = await axios.put('https://lifejournalbackend.onrender.com/api/user/name', {
         name: values.name,
       });
       setUser(response.data);
@@ -53,7 +53,7 @@ const Settings = () => {
   const onFinishEmail = async (values) => {
     setLoading(true);
     try {
-      const response = await axios.put('http://localhost:3000/api/user/email', {
+      const response = await axios.put('https://lifejournalbackend.onrender.com/api/user/email', {
         email: values.email,
       });
       setUser(response.data);
@@ -68,7 +68,7 @@ const Settings = () => {
   const onFinishPassword = async (values) => {
     setLoading(true);
     try {
-      await axios.put('http://localhost:3000/api/user/password', {
+      await axios.put('https://lifejournalbackend.onrender.com/api/user/password', {
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
@@ -88,7 +88,7 @@ const Settings = () => {
     formData.append('profilePicture', file);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/user/profile-picture', formData, {
+      const response = await axios.post('https://lifejournalbackend.onrender.com/api/user/profile-picture', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setUser(response.data.user);

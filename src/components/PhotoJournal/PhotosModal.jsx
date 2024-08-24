@@ -57,7 +57,7 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
 
   const fetchSongData = async (songId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/spotify/track/${songId}`);
+      const response = await axios.get(`https://lifejournalbackend.onrender.com/api/spotify/track/${songId}`);
       setSelectedSong(response.data);
     } catch (error) {
       console.error('Error fetching song data:', error);
@@ -107,7 +107,7 @@ const PhotosModal = ({ visible, onSubmit, onCancel, initialData = null }) => {
     debounce(async (query) => {
       if (query) {
         try {
-          const response = await axios.get(`http://localhost:3000/api/spotify/search?query=${encodeURIComponent(query)}`);
+          const response = await axios.get(`https://lifejournalbackend.onrender.com/api/spotify/search?query=${encodeURIComponent(query)}`);
           setSongSearchResults(response.data.tracks.items);
         } catch (error) {
           console.error('Error searching songs:', error);

@@ -19,7 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 const { Sider } = Layout;
 
 const fetchUserData = async () => {
-  const { data } = await axios.get('http://localhost:3000/api/user');
+  const { data } = await axios.get('https://lifejournalbackend.onrender.com/api/user');
   return data;
 };
 

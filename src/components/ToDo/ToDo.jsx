@@ -13,7 +13,7 @@ const { Content } = Layout;
 const { Option } = Select;
 
 const fetchTodos = async () => {
-  const { data } = await axios.get('http://localhost:3000/api/todos');
+  const { data } = await axios.get('https://lifejournalbackend.onrender.com/api/todos');
   return data;
 };
 
@@ -37,7 +37,7 @@ const ToDo = () => {
 
   const handleCreate = async (values) => {
     try {
-      const response = await axios.post('http://localhost:3000/api/todos', values);
+      const response = await axios.post('https://lifejournalbackend.onrender.com/api/todos', values);
       refetch();
       setModalVisible(false);
       message.success('Todo added successfully');
@@ -51,7 +51,7 @@ const ToDo = () => {
 
   const handleUpdate = async (id, values) => {
     try {
-      const response = await axios.put(`http://localhost:3000/api/todos/${id}`, values);
+      const response = await axios.put(`https://lifejournalbackend.onrender.com/api/todos/${id}`, values);
       refetch();
       setModalVisible(false);
       setEditingTodo(null);
@@ -64,7 +64,7 @@ const ToDo = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/todos/${id}`);
+      await axios.delete(`https://lifejournalbackend.onrender.com/api/todos/${id}`);
       refetch();
       message.success('Todo deleted successfully');
     } catch (error) {
@@ -83,7 +83,7 @@ const ToDo = () => {
     try {
       const todoToUpdate = todos.find((todo) => todo._id === id);
       const response = await axios.put(
-        `http://localhost:3000/api/todos/${id}`,
+        `https://lifejournalbackend.onrender.com/api/todos/${id}`,
         { ...todoToUpdate, completed },
         { withCredentials: true }
       );

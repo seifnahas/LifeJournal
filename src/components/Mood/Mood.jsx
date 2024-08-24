@@ -11,7 +11,7 @@ import MoodItem from './MoodItem';
 const { Content } = Layout;
 
 const fetchMoods = async () => {
-  const { data } = await axios.get('http://localhost:3000/api/moods');
+  const { data } = await axios.get('https://lifejournalbackend.onrender.com/api/moods');
   return data;
 };
 
@@ -28,7 +28,7 @@ const Mood = () => {
 
   // const fetchMoods = async () => {
   //   try {
-  //     const response = await axios.get('http://localhost:3000/api/moods');
+  //     const response = await axios.get('https://lifejournalbackend.onrender.com/api/moods');
   //     setMoods(response.data);
   //   } catch (error) {
   //     console.error('Error fetching moods:', error);
@@ -68,11 +68,11 @@ const Mood = () => {
   const handleCreate = async (values) => {
     try {
       if (editingMood) {
-        const response = await axios.put(`http://localhost:3000/api/moods/${editingMood._id}`, values);
+        const response = await axios.put(`https://lifejournalbackend.onrender.com/api/moods/${editingMood._id}`, values);
         setMoods(moods.map(mood => mood._id === editingMood._id ? response.data : mood));
         message.success('Mood updated successfully');
       } else {
-        const response = await axios.post('http://localhost:3000/api/moods', values);
+        const response = await axios.post('https://lifejournalbackend.onrender.com/api/moods', values);
         setMoods([response.data, ...moods]);
         message.success('Mood logged successfully');
       }
@@ -91,7 +91,7 @@ const Mood = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/moods/${id}`);
+      await axios.delete(`https://lifejournalbackend.onrender.com/api/moods/${id}`);
       setMoods(moods.filter(mood => mood._id !== id));
       message.success('Mood entry deleted successfully');
     } catch (error) {
