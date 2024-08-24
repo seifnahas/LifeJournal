@@ -14,11 +14,11 @@ const Signon = () => {
   const onSubmit = async (data) => {
     try {
       if (isSignUp) {
-        const response = await axios.post('https://life-journal-backend.vercel.app/api/auth/register', data);
+        const response = await axios.post('https://lifejournalbackend.onrender.com/api/auth/register', data);
         message.success(response.data.message);
         setIsSignUp(false);
       } else {
-        const response = await axios.post('https://life-journal-backend.vercel.app/api/auth/signin', data);
+        const response = await axios.post('https://lifejournalbackend.onrender.com/api/auth/signin', data);
         const { token } = response.data;
         localStorage.setItem('jwtToken', token);
         message.success('Sign in successful!');
